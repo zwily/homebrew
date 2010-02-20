@@ -1,11 +1,16 @@
 require 'formula'
 
+class Setuptools <Formula
+  url 'http://pypi.python.org/packages/source/s/setuptools/setuptools-0.6c11.tar.gz'
+  homepage 'http://pypi.python.org/pypi/setuptools'
+  md5 '7df2a529a074f613b509fb44feefe74e'
+  version '0.6c11'
+end
+
 class Pip <Formula
   url 'http://pypi.python.org/packages/source/p/pip/pip-0.6.3.tar.gz'
   homepage 'http://pip.openplans.org/'
   md5 '0602fa9179cfaa98e41565d4a581d98c'
-
-  depends_on 'setuptools'
 
   def script lib_path
     <<-EOS
@@ -28,18 +33,23 @@ if __name__ == '__main__':
   end
 
   def install
-    dest = prefix+"lib/pip"
+    python_version = `python -V 2>&1`.match('Python (\d+\.\d+)').captures.at(0)
+    site_packages = prefix+'site-packages'
+
+    site_packages.mkpath
+
+    Setuptools.new.brew do |f|
+      setuptools_version = f.version
+      mv 'setuptools', site_packages
+      mv 'setuptools.egg-info/PKG-INFO', "#{site_packages}/setuptools-#{setuptools_version}-py#{python_version}.egg"
+    end
 
     # make sure we use the right python (distutils rewrites the shebang)
     # also adds the pip lib path to the PYTHONPATH
-    (bin+'pip').write(script(dest))
+    (bin+'pip').write(script(site_packages))
 
-    # FIXME? If we use /usr/bin/env python in the pip script
-    # then should we be hardcoding this version? I dunno.
-    python_version = `python -V 2>&1`.match('Python (\d+\.\d+)').captures.at(0)
-
-    dest.install('pip')
-    cp 'pip.egg-info/PKG-INFO', "#{dest}/pip-#{version}-py#{python_version}.egg-info"
+    mv 'pip', site_packages
+    mv 'pip.egg-info/PKG-INFO', "#{site_packages}/pip-#{version}-py#{python_version}.egg-info"
   end
 
   def two_line_instructions
