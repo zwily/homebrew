@@ -5,8 +5,6 @@ class Jpeg <Formula
   version '8a'
   md5 '5146e68be3633c597b0d14d3ed8fa2ea'
   homepage 'http://www.ijg.org'
-  
-  aka :libjpeg, :libjpg
 
   def install
     system "./configure", "--prefix=#{prefix}"

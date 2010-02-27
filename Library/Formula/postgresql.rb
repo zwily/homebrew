@@ -9,8 +9,6 @@ class Postgresql <Formula
   depends_on 'readline'
   depends_on 'libxml2' if MACOS_VERSION < 10.6 #system libxml is too old
 
-  aka 'postgres'
-
   def options
     [
       ['--no-python', 'Build without Python support.'],

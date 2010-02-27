@@ -14,8 +14,6 @@ class Ghostscript <Formula
   depends_on 'jasper'
   depends_on 'jpeg'
 
-  aka :gs
-
   def move_included_source_copies
     # If the install version of any of these doesn't match
     # the version included in ghostscript, we get errors

@@ -8,8 +8,6 @@ class Usbmuxd <Formula
   depends_on 'libusb'
   depends_on 'cmake'
 
-  aka 'usb-multiplex-daemon'
-
   def install
     system "cmake . #{std_cmake_parameters}"
     system "make install"

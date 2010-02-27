@@ -10,8 +10,6 @@ class Exult <Formula
   depends_on 'sdl'
   depends_on 'sdl_mixer'
   
-  aka 'ultima7'
-  
   def install
     # Yes, really. Goddamnit.
     inreplace "autogen.sh", "libtoolize", "glibtoolize"
