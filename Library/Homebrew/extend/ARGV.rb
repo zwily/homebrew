@@ -2,25 +2,39 @@ class UsageError <RuntimeError; end
 class FormulaUnspecifiedError <UsageError; end
 class KegUnspecifiedError <UsageError; end
 
+def resolve_alias name
+  aka = HOMEBREW_REPOSITORY+"Library/Aliases/#{name}"
+  if aka.file?
+    aka.realpath.basename('.rb').to_s
+  else
+    name
+  end
+end
+
 module HomebrewArgvExtension
   def named
     @named ||= reject{|arg| arg[0..0] == '-'}
   end
+
   def options
     select {|arg| arg[0..0] == '-'}
   end
+
   def formulae
     require 'formula'
-    @formulae ||= downcased_unique_named.collect {|name| Formula.factory name}
+    @formulae ||= downcased_unique_named.collect do |name|
+      Formula.factory(resolve_alias(name))
+    end
     raise FormulaUnspecifiedError if @formulae.empty?
     @formulae
   end
+
   def kegs
     require 'keg'
     @kegs ||= downcased_unique_named.collect do |name|
-      d=HOMEBREW_CELLAR+name
+      d = HOMEBREW_CELLAR + resolve_alias(name)
       dirs = d.children.select{ |pn| pn.directory? } rescue []
-      raise "#{name} is not installed" if not d.directory? or dirs.length == 0
+      raise "No such keg: #{HOMEBREW_CELLAR}/#{name}" if not d.directory? or dirs.length == 0
       raise "#{name} has multiple installed versions" if dirs.length > 1
       Keg.new dirs.first
     end
