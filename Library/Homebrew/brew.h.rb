@@ -8,18 +8,20 @@ def check_for_blacklisted_formula names
     case name
       # bazaar don't maintain their PyPi entry properly yet
       # when they do we'll remove our formula and use that
-#    when 'bazaar', 'bzr' then abort <<-EOS
-#Bazaar can be installed thusly:
-#
-#    brew install pip && pip install bzr==2.0.1
-#
-#    EOS
-    when 'mercurial', 'hg' then abort <<-EOS
-Mercurial can be install thusly:
+=begin
+    when 'bazaar', 'bzr' then abort <<-EOS.undent
+      Bazaar can be installed thusly:
 
-    brew install pip && pip install mercurial
+          brew install pip && pip install bzr==2.0.1
 
-    EOS
+      EOS
+=end
+    when 'mercurial', 'hg' then abort <<-EOS.undent
+      Mercurial can be install thusly:
+
+          brew install pip && pip install mercurial
+
+      EOS
     end
   end
 end
