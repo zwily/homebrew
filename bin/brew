@@ -122,16 +122,19 @@ begin
       end
 
     when 'search', '-S'
-      check_for_blacklisted_formula(ARGV.named)
-
-      require "formula"
-      formulae = Formulary.names with_aliases=true
-
-      if ARGV.first =~ /^\/(.*)\/$/
-        puts_columns formulae.grep(Regexp.new($1))
+      require 'formula'
+      out = if ARGV.named.empty?
+        Formula.names
       else
-        puts_columns formulae.grep(/.*#{ARGV.first}.*/)
+        check_for_blacklisted_formula(ARGV.named)
+        names = Formula.names + Formula.aliases
+        if ARGV.first =~ %r{^/(.*)/$}
+          names.grep(Regexp.new($1))
+        else
+          names.grep(/.*#{ARGV.first}.*/)
+        end
       end
+      puts_columns out
 
     when 'edit'
       if ARGV.named.empty?
@@ -213,7 +216,7 @@ begin
       if ARGV.named.empty?
         if ARGV.include? "--all"
           require 'formula'
-          Formulary.names.each do |name|
+          Formula.names.each do |name|
             info name
             puts '---'
           end
