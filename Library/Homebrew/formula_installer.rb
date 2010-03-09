@@ -10,7 +10,7 @@ class FormulaInstaller
 
   attr_writer :install_deps
 
-  def expand_deps f
+  def self.expand_deps f
     deps = []
     f.deps.collect do |dep|
       dep = Formula.factory dep
@@ -59,7 +59,7 @@ Homebrew does not provide formulae for Ruby dependencies, rubygems does:
   end
 
   def check_formula_deps f
-    expand_deps(f).each do |dep|
+    FormulaInstaller.expand_deps(f).each do |dep|
       begin
         install_private dep unless dep.installed?
       rescue
