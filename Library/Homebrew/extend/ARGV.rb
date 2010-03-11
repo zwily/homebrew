@@ -2,15 +2,6 @@ class UsageError <RuntimeError; end
 class FormulaUnspecifiedError <UsageError; end
 class KegUnspecifiedError <UsageError; end
 
-def resolve_alias name
-  aka = HOMEBREW_REPOSITORY+"Library/Aliases/#{name}"
-  if aka.file?
-    aka.realpath.basename('.rb').to_s
-  else
-    name
-  end
-end
-
 module HomebrewArgvExtension
   def named
     @named ||= reject{|arg| arg[0..0] == '-'}
@@ -22,9 +13,7 @@ module HomebrewArgvExtension
 
   def formulae
     require 'formula'
-    @formulae ||= downcased_unique_named.collect do |name|
-      Formula.factory(resolve_alias(name))
-    end
+    @formulae ||= downcased_unique_named.map{ |name| Formula.factory(resolve_alias(name)) }
     raise FormulaUnspecifiedError if @formulae.empty?
     @formulae
   end
@@ -110,6 +99,15 @@ module HomebrewArgvExtension
   private
 
   def downcased_unique_named
-    @downcased_unique_named ||= named.collect{|arg| arg.downcase}.uniq
+    @downcased_unique_named ||= named.map(&:downcase).uniq
+  end
+
+  def resolve_alias name
+    aka = HOMEBREW_REPOSITORY+"Library/Aliases/#{name}"
+    if aka.file?
+      aka.realpath.basename('.rb').to_s
+    else
+      name
+    end
   end
 end
