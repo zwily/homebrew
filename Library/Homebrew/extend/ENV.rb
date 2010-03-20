@@ -10,10 +10,14 @@ module HomebrewEnvExtension
 
     ENV['MAKEFLAGS']="-j#{Hardware.processor_count}"
 
+    cflags = []
+    ldflags = []
+
     unless HOMEBREW_PREFIX.to_s == '/usr/local'
       # /usr/local is already an -isystem and -L directory so we skip it
-      ENV['CPPFLAGS'] = "-isystem #{HOMEBREW_PREFIX}/include"
-      ENV['LDFLAGS'] = "-L#{HOMEBREW_PREFIX}/lib"
+      # NOTE we did use CPPFLAGS but so many configure scripts ignore it
+      cflags << '-isystem' << "#{HOMEBREW_PREFIX}/include"
+      ldflags << "-L#{HOMEBREW_PREFIX}/lib"
       # CMake ignores the variables above
       ENV['CMAKE_PREFIX_PATH'] = "#{HOMEBREW_PREFIX}"
     end
@@ -25,12 +29,12 @@ module HomebrewEnvExtension
 
       ENV['CC'] = "#{prefix}/usr/bin/llvm-gcc"
       ENV['CXX'] = "#{prefix}/usr/bin/llvm-g++"
-      cflags = %w{-O4} # link time optimisation baby!
+      cflags << '-O4' # link time optimisation baby!
     else
       # if we don't set these, many formula fail to build
       ENV['CC'] = '/usr/bin/cc'
       ENV['CXX'] = '/usr/bin/c++'
-      cflags = ['-O3']
+      cflags << '-O3'
     end
 
     # in rare cases this may break your builds, as the tool for some reason wants
@@ -72,6 +76,7 @@ module HomebrewEnvExtension
     end
 
     ENV['CFLAGS'] = ENV['CXXFLAGS'] = "#{cflags*' '} #{SAFE_CFLAGS_FLAGS}"
+    ENV['LDFLAGS'] = ldflags * ' '
   end
   
   def deparallelize
