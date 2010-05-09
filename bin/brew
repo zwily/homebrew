@@ -364,6 +364,10 @@ begin
       end
     end
 
+  when 'fix_install_names'
+    require 'keg'
+    ARGV.kegs.each{ |keg| keg.fix_install_names }
+
   when 'branch', 'checkout', 'pull', 'push', 'rebase', 'reset'
     onoe "Unknown command: #{arg} (did you mean 'git #{arg}'?)"
 
